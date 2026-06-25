@@ -10,6 +10,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Pesq Dex">
 
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="logo.png">
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
@@ -551,17 +554,12 @@
 
 <script>
     // ==========================================
-    // --- PWA & INSTALAÇÃO NATIVA ANDROID ---
+    // --- SERVIÇO DE REGISTO DO SERVICE WORKER ---
     // ==========================================
-    const dexcoLogoSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><rect width="512" height="512" rx="112" fill="#050505"/><text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="100" font-weight="900" fill="#ffffff" letter-spacing="2">Pesq</text><text x="50%" y="65%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="100" font-weight="900" fill="#ffffff" letter-spacing="2">Dex</text></svg>`;
-    const dexcoLogoBase64 = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(dexcoLogoSvg)));
-    const appleIcon = document.createElement('link'); appleIcon.rel = 'apple-touch-icon'; appleIcon.href = dexcoLogoBase64; document.head.appendChild(appleIcon);
-    const manifest = { "name": "Pesquisa Dexco", "short_name": "Pesq Dex", "start_url": window.location.href.split('?')[0], "display": "standalone", "background_color": "#050505", "theme_color": "#050505", "icons": [ { "src": dexcoLogoBase64, "sizes": "192x192", "type": "image/svg+xml", "purpose": "any maskable" }, { "src": dexcoLogoBase64, "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" } ] };
-    const manifestLink = document.createElement('link'); manifestLink.rel = 'manifest'; manifestLink.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest)); document.head.appendChild(manifestLink);
-
     if ('serviceWorker' in navigator) {
-        const swScript = `self.addEventListener('install', event => self.skipWaiting()); self.addEventListener('activate', event => self.clients.claim()); self.addEventListener('fetch', event => { event.respondWith(fetch(event.request).catch(() => new Response('App Offline'))); });`;
-        const swBlob = new Blob([swScript], { type: 'application/javascript' }); const swUrl = URL.createObjectURL(swBlob); navigator.serviceWorker.register(swUrl).catch(console.error);
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').catch(console.error);
+        });
     }
 
     let deferredPrompt;
@@ -656,6 +654,7 @@
             localStorage.setItem('dexco_user', JSON.stringify(currentUser));
             document.getElementById('registro-modal').style.display = 'none';
             aplicarPermissoes(); atualizarNomeTopo(); exibirToast('Acesso Master Concedido!', 'sucesso');
+            renderGrid('', true);
         } else alert("Palavra-passe incorreta");
     }
 
